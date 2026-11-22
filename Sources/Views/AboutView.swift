@@ -22,8 +22,9 @@ struct AboutView: View {
                 Text("How it works").font(.system(.headline, design: .rounded)).foregroundStyle(.white)
                 BulletList(lines: [
                     "Play opens the official Minecraft app through its minecraft:// link.",
-                    "Packs, worlds and add-ons are copied into AETHER's own folder, then sent to Minecraft through the system Open In menu.",
-                    "Install status comes from asking iOS whether anything answers to the minecraft:// link."
+                    "Packs, worlds and add-ons live in AETHER's own library, then reach Minecraft through the system Open In menu.",
+                    "Discover downloads from CurseForge with your own API key. Downloads are validated before they enter the library.",
+                    "Client features are saved settings. They can't act on Minecraft because iOS doesn't allow code to run inside another app."
                 ])
             }
             .glassCard()
@@ -31,7 +32,7 @@ struct AboutView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Text("iOS limits").font(.system(.headline, design: .rounded)).foregroundStyle(.white)
                 BulletList(lines: [
-                    "AETHER can't read or write inside Minecraft's sandbox, change its settings, or inject anything into it.",
+                    "AETHER can't run Minecraft inside itself, draw over it, change its camera, or read or write its sandbox. See the technical report in the repository.",
                     "It can't see Minecraft's version or confirm that an import finished. Minecraft shows its own import progress.",
                     "Worlds and packs only reach Minecraft when you pick it in the Open In menu."
                 ])

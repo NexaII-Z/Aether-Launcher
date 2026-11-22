@@ -113,7 +113,7 @@ enum LibraryIO {
         for url in urls { try? FileManager.default.removeItem(at: url) }
     }
 
-    private static func uniqueDestination(base: String, ext: String, in directory: URL) -> URL {
+    static func uniqueDestination(base: String, ext: String, in directory: URL) -> URL {
         var candidate = directory.appendingPathComponent(base).appendingPathExtension(ext)
         var index = 2
         while FileManager.default.fileExists(atPath: candidate.path) {

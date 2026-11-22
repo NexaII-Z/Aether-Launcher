@@ -4,6 +4,7 @@ enum SettingsKey {
     static let haptics = "aether.haptics"
     static let confirmLaunch = "aether.confirmLaunch"
     static let autoRefresh = "aether.autoRefresh"
+    static let solidCards = "aether.solidCards"
 }
 
 enum Theme {
@@ -39,6 +40,7 @@ extension View {
 }
 
 private struct GlassCard: ViewModifier {
+    @AppStorage(SettingsKey.solidCards) private var solidCards = false
     let radius: CGFloat
     let padding: CGFloat
 
@@ -51,6 +53,17 @@ private struct GlassCard: ViewModifier {
 
     @ViewBuilder
     private var surface: some View {
+        if solidCards {
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .fill(Theme.graphite)
+                .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(Theme.hairline, lineWidth: 1))
+        } else {
+            glassOrMaterial
+        }
+    }
+
+    @ViewBuilder
+    private var glassOrMaterial: some View {
         #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             RoundedRectangle(cornerRadius: radius, style: .continuous)

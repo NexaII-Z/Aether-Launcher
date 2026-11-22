@@ -38,6 +38,12 @@ for path in sources:
     if text.count("{") != text.count("}") or text.count("(") != text.count(")"):
         errors.append(f"{path.relative_to(root)}: unbalanced braces or parentheses")
 
+# Guard: no third-party binaries or API secrets may be committed.
+for path in root.rglob("*"):
+    if path.is_file() and ".git" not in path.parts and path.stat().st_size > 0:
+        if path.suffix in {".ipa", ".dylib", ".a"} or path.read_bytes()[:4] in {b"\xcf\xfa\xed\xfe", b"\xca\xfe\xba\xbe"}:
+            errors.append(f"{path.relative_to(root)}: binary executables must not be committed")
+
 if errors:
     print("Preflight failed:")
     for error in errors:
