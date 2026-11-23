@@ -1,0 +1,80 @@
+name: Patch Minecraft IPA (AETHER Zoom)
+
+# Keep this repository PRIVATE. The workflow reads YOUR copy of the game from a release in this repo.
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Tag of a release in this repo that has your Minecraft .ipa (or .zip of the .app) attached"
+        default: "minecraft-ipa"
+        required: true
+      zoom_strength:
+        description: "Zoom strength (1.25 to 8)"
+        default: "3"
+      button_size:
+        description: "Button size in points (32 to 96)"
+        default: "54"
+      button_opacity:
+        description: "Button opacity (0.25 to 1)"
+        default: "0.9"
+      sign:
+        description: "Sign with your certificate (needs the P12_BASE64, P12_PASSWORD, PROVISION_BASE64 secrets)"
+        type: boolean
+        default: false
+      bundle_id:
+        description: "Bundle id to use when the provisioning profile is a wildcard"
+        default: "com.aether.minecraftpe"
+
+permissions:
+  contents: read
+
+jobs:
+  patch:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download your game file from the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.release_tag }}
+        run: |
+          mkdir -p input
+          gh release download "$TAG" --pattern '*.ipa' --pattern '*.zip' --dir input --repo "${{ github.repository }}" \
+            || { echo "::error::No .ipa or .zip asset found on release '$TAG'. Create a release with that tag and attach your file."; exit 1; }
+          ls -la input
+          echo "INPUT_FILE=$(ls input/* | head -n1)" >> "$GITHUB_ENV"
+
+      - name: Build AetherZoom.dylib
+        run: ./Scripts/build_zoom_dylib.sh
+
+      - name: Patch
+        env:
+          ZOOM: ${{ inputs.zoom_strength }}
+          SIZE: ${{ inputs.button_size }}
+          OPACITY: ${{ inputs.button_opacity }}
+        run: |
+          python3 Scripts/aether_patch.py "$INPUT_FILE" \
+            --dylib build/AetherZoom.dylib \
+            --zoom "$ZOOM" \
+            --button-size "$SIZE" \
+            --opacity "$OPACITY" \
+            --out build/Minecraft-AETHER-unsigned.ipa
+
+      - name: Sign
+        if: ${{ inputs.sign }}
+        env:
+          P12_BASE64: ${{ secrets.P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          PROVISION_BASE64: ${{ secrets.PROVISION_BASE64 }}
+          BUNDLE_ID: ${{ inputs.bundle_id }}
+        run: ./Scripts/sign_ipa.sh build/Minecraft-AETHER-unsigned.ipa build/Minecraft-AETHER-signed.ipa "$BUNDLE_ID"
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.sign && 'Minecraft-AETHER-signed-ipa' || 'Minecraft-AETHER-unsigned-ipa' }}
+          path: ${{ inputs.sign && 'build/Minecraft-AETHER-signed.ipa' || 'build/Minecraft-AETHER-unsigned.ipa' }}
+          if-no-files-found: error
+          retention-days: 3
