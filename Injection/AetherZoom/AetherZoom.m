@@ -108,19 +108,19 @@ static NSString *const kPosKey = @"aether.zoom.pos";
     CGFloat h = self.config.buttonSize / 2;
     CGFloat x = r.origin.x + self.fraction.x * r.size.width;
     CGFloat y = r.origin.y + self.fraction.y * r.size.height;
-    x = MAX(r.origin.x + h, MIN(CGRectGetMaxX(r) - h, x));
-    y = MAX(r.origin.y + h, MIN(CGRectGetMaxY(r) - h, y));
+    x = MAX(r.origin.x + h, MIN((r.origin.x + r.size.width) - h, x));
+    y = MAX(r.origin.y + h, MIN((r.origin.y + r.size.height) - h, y));
     self.button.center = CGPointMake(x, y);
 }
 
 - (void)panned:(UIPanGestureRecognizer *)g {
     CGPoint d = [g translationInView:self.view];
-    [g setTranslation:CGPointZero inView:self.view];
+    [g setTranslation:CGPointMake(0, 0) inView:self.view];
     CGRect r = UIEdgeInsetsInsetRect(self.view.bounds, self.view.safeAreaInsets);
     CGFloat h = self.config.buttonSize / 2;
     CGPoint c = CGPointMake(self.button.center.x + d.x, self.button.center.y + d.y);
-    c.x = MAX(r.origin.x + h, MIN(CGRectGetMaxX(r) - h, c.x));
-    c.y = MAX(r.origin.y + h, MIN(CGRectGetMaxY(r) - h, c.y));
+    c.x = MAX(r.origin.x + h, MIN((r.origin.x + r.size.width) - h, c.x));
+    c.y = MAX(r.origin.y + h, MIN((r.origin.y + r.size.height) - h, c.y));
     self.button.center = c;
     if (g.state == UIGestureRecognizerStateEnded || g.state == UIGestureRecognizerStateCancelled) {
         self.fraction = CGPointMake((c.x - r.origin.x) / r.size.width, (c.y - r.origin.y) / r.size.height);
@@ -142,7 +142,7 @@ static NSString *const kPosKey = @"aether.zoom.pos";
 - (void)applyZoom {
     UIView *target = [self gameView];
     if (!target) { [self showToast:@"Game view not found"]; self.zoomed = NO; return; }
-    CGAffineTransform t = self.zoomed ? CGAffineTransformMakeScale(self.strength, self.strength) : CGAffineTransformIdentity;
+    CGAffineTransform t = self.zoomed ? ((CGAffineTransform){self.strength, 0, 0, self.strength, 0, 0}) : ((CGAffineTransform){1, 0, 0, 1, 0, 0});
     void (^change)(void) = ^{ target.transform = t; };
     if (self.config.smooth) {
         [UIView animateWithDuration:0.22 delay:0 options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState animations:change completion:nil];
@@ -174,9 +174,9 @@ static NSString *const kPosKey = @"aether.zoom.pos";
     CGRect f = self.toast.frame; f.size.width += 20; f.size.height += 10;
     self.toast.frame = f;
     self.toast.center = CGPointMake(self.button.center.x, self.button.center.y + self.config.buttonSize / 2 + 18);
-    CGFloat maxX = CGRectGetMaxX(self.view.bounds) - 4, minX = 4;
+    CGFloat maxX = (self.view.bounds.origin.x + self.view.bounds.size.width) - 4, minX = 4;
     CGRect g = self.toast.frame;
-    if (CGRectGetMaxX(g) > maxX) g.origin.x = maxX - g.size.width;
+    if ((g.origin.x + g.size.width) > maxX) g.origin.x = maxX - g.size.width;
     if (g.origin.x < minX) g.origin.x = minX;
     self.toast.frame = g;
     [self.toast.layer removeAllAnimations];
