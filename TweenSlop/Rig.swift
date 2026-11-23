@@ -25,12 +25,12 @@ enum Rig {
         return Pose(last)
     }
 
-    static func baseTransform(_ body: Body) -> CGAffineTransform {
+    static func baseTransform(_ body: PuppetBody) -> CGAffineTransform {
         CGAffineTransform(translationX: CGFloat(body.position.x), y: CGFloat(body.position.y))
             .scaledBy(x: CGFloat(body.scale), y: CGFloat(body.scale))
     }
 
-    static func world(for body: Body, frame: Int, rest: Bool) -> [UUID: CGAffineTransform] {
+    static func world(for body: PuppetBody, frame: Int, rest: Bool) -> [UUID: CGAffineTransform] {
         var result: [UUID: CGAffineTransform] = [:]
         let byID = Dictionary(uniqueKeysWithValues: body.parts.map { ($0.id, $0) })
         let base = baseTransform(body)
@@ -82,7 +82,7 @@ enum Rig {
         return Vec2(x: x, y: y)
     }
 
-    static func humanoid(name: String, canvas: CGSize) -> Body {
+    static func humanoid(name: String, canvas: CGSize) -> PuppetBody {
         func make(_ n: String, _ w: Double, _ h: Double, pivot: (Double, Double), joint: (Double, Double), z: Int, parent: UUID?, color: Int) -> Part {
             Part(name: n, parentID: parent, size: Vec2(x: w, y: h), pivot: Vec2(x: pivot.0, y: pivot.1), joint: Vec2(x: joint.0, y: joint.1), z: z, colorIndex: color)
         }
@@ -92,7 +92,7 @@ enum Rig {
         let armR = make("Right Arm", 90, 300, pivot: (0.5, 0.08), joint: (-150, -150), z: 3, parent: torso.id, color: 3)
         let legL = make("Left Leg", 110, 340, pivot: (0.5, 0.06), joint: (65, 170), z: 0, parent: torso.id, color: 4)
         let legR = make("Right Leg", 110, 340, pivot: (0.5, 0.06), joint: (-65, 170), z: 0, parent: torso.id, color: 5)
-        return Body(
+        return PuppetBody(
             name: name,
             position: Vec2(x: Double(canvas.width) / 2, y: Double(canvas.height) / 2),
             parts: [torso, head, armL, armR, legL, legR]

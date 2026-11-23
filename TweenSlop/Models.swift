@@ -109,7 +109,7 @@ struct Part: Codable, Identifiable, Equatable {
     var colorIndex: Int = 0
 }
 
-struct Body: Codable, Identifiable, Equatable {
+struct PuppetBody: Codable, Identifiable, Equatable {
     var id = UUID()
     var name: String
     var position: Vec2
@@ -139,7 +139,7 @@ struct Project: Codable, Identifiable, Equatable {
     var durationFrames: Int = 120
     var canvasWidth: Double = 1080
     var canvasHeight: Double = 1920
-    var bodies: [Body] = []
+    var bodies: [PuppetBody] = []
     var sounds: [SoundClip] = []
     var video: VideoClip?
     var modified: Date = Date()

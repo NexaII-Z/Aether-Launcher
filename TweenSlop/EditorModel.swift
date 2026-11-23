@@ -83,7 +83,7 @@ final class EditorModel: ObservableObject {
     // MARK: Selection helpers
 
     var bodyIndex: Int? { project.bodies.firstIndex { $0.id == selectedBodyID } }
-    var selectedBody: Body? { project.bodies.first { $0.id == selectedBodyID } }
+    var selectedBody: PuppetBody? { project.bodies.first { $0.id == selectedBodyID } }
     var selectedPart: Part? { selectedBody?.parts.first { $0.id == selectedPartID } }
     var keyAtCurrent: Keyframe? { selectedPart?.keyframes.first { $0.frame == currentFrame } }
 
@@ -102,7 +102,7 @@ final class EditorModel: ObservableObject {
         change(&project.bodies[bi].parts[pi])
     }
 
-    func mutateBody(_ change: (inout Body) -> Void) {
+    func mutateBody(_ change: (inout PuppetBody) -> Void) {
         guard let bi = bodyIndex else { return }
         change(&project.bodies[bi])
     }
@@ -112,11 +112,11 @@ final class EditorModel: ObservableObject {
     func addBody(humanoid: Bool) {
         let n = project.bodies.count + 1
         let size = CGSize(width: project.canvasWidth, height: project.canvasHeight)
-        let body: Body
+        let body: PuppetBody
         if humanoid {
             body = Rig.humanoid(name: "Body \(n)", canvas: size)
         } else {
-            body = Body(name: "Body \(n)", position: Vec2(x: size.width / 2, y: size.height / 2), parts: [])
+            body = PuppetBody(name: "Body \(n)", position: Vec2(x: size.width / 2, y: size.height / 2), parts: [])
         }
         project.bodies.append(body)
         selectedBodyID = body.id
