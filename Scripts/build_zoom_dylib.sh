@@ -7,7 +7,7 @@ xcrun --sdk iphoneos clang \
   -arch arm64 -dynamiclib -fobjc-arc -fvisibility=hidden -O2 \
   -miphoneos-version-min=13.0 \
   -Wall -Wno-deprecated-declarations \
-  -framework UIKit -framework Foundation -framework QuartzCore \
+  -framework UIKit -framework Foundation -framework QuartzCore -framework CoreGraphics \
   -install_name @rpath/AetherZoom.dylib \
   -o build/AetherZoom.dylib Injection/AetherZoom/AetherZoom.m
 file build/AetherZoom.dylib
