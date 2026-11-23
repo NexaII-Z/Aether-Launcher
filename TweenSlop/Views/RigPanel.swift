@@ -51,7 +51,7 @@ struct RigPanel: View {
         }
     }
 
-    private func bodySettings(_ body: Body) -> some View {
+    private func bodySettings(_ body: PuppetBody) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 TextField("Body name", text: Binding(
@@ -73,7 +73,7 @@ struct RigPanel: View {
         }
     }
 
-    private func inspector(_ part: Part, body: Body) -> some View {
+    private func inspector(_ part: Part, body: PuppetBody) -> some View {
         let blocked = Rig.descendants(of: part.id, in: body.parts)
         let candidates = body.parts.filter { $0.id != part.id && !blocked.contains($0.id) }
         return GroupBox {

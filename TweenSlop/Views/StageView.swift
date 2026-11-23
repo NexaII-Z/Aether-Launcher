@@ -76,7 +76,7 @@ struct StageView: View {
         }
     }
 
-    private static func drawParts(_ ctx: GraphicsContext, body: Body, world: [UUID: CGAffineTransform], hasImage: Set<UUID>, selected: UUID?) {
+    private static func drawParts(_ ctx: GraphicsContext, body: PuppetBody, world: [UUID: CGAffineTransform], hasImage: Set<UUID>, selected: UUID?) {
         for part in body.parts.sorted(by: { $0.z < $1.z }) {
             guard let t = world[part.id] else { continue }
             var c = ctx
@@ -105,7 +105,7 @@ struct StageView: View {
         }
     }
 
-    private static func drawRig(_ ctx: GraphicsContext, body: Body, world: [UUID: CGAffineTransform], selected: UUID?, scale s: CGFloat) {
+    private static func drawRig(_ ctx: GraphicsContext, body: PuppetBody, world: [UUID: CGAffineTransform], selected: UUID?, scale s: CGFloat) {
         for part in body.parts {
             guard let t = world[part.id], let pid = part.parentID, let pt = world[pid] else { continue }
             var line = Path()
